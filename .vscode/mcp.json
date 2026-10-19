@@ -1,0 +1,9 @@
+﻿{
+  "servers": {
+    "screenshot": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/bin/desktop-mcp.js"]
+    }
+  }
+}

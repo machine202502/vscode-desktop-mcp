@@ -1,0 +1,189 @@
+{
+  "name": "desktop-mcp",
+  "displayName": "Desktop MCP",
+  "description": "Desktop screen size and screenshots for VS Code agents (Copilot) and any MCP client (Claude Code, Grok, Cursor, ...).",
+  "version": "0.1.0",
+  "publisher": "local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.106.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "bin": {
+    "desktop-mcp": "bin/desktop-mcp.js"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "languageModelTools": [
+      {
+        "name": "desktopMcp_getScreenSize",
+        "displayName": "Get Screen Size",
+        "toolReferenceName": "getScreenSize",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Returns the screen geometry in pixels: the virtual screen bounds (origin may be negative on multi-monitor setups) and the bounds of every display. Call this before captureScreenshot when you need to compute a region.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "desktopMcp_captureScreenshot",
+        "displayName": "Capture Screenshot",
+        "toolReferenceName": "captureScreenshot",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Takes a screenshot of the whole screen or of a rectangular region and returns it as an image. Coordinates are pixels relative to the virtual screen origin (top-left of the leftmost/topmost display).",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "region": {
+              "type": "object",
+              "description": "Rectangle to capture. Omit to capture the whole virtual screen.",
+              "properties": {
+                "x": {
+                  "type": "number",
+                  "description": "Left edge in pixels."
+                },
+                "y": {
+                  "type": "number",
+                  "description": "Top edge in pixels."
+                },
+                "width": {
+                  "type": "number",
+                  "description": "Width in pixels."
+                },
+                "height": {
+                  "type": "number",
+                  "description": "Height in pixels."
+                }
+              },
+              "required": [
+                "x",
+                "y",
+                "width",
+                "height"
+              ],
+              "additionalProperties": false
+            },
+            "display": {
+              "type": "number",
+              "description": "Display index (0-based) as returned by getScreenSize. Ignored when region is set."
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "png",
+                "jpeg"
+              ],
+              "description": "Image format. Default png."
+            },
+            "quality": {
+              "type": "number",
+              "description": "JPEG quality 1-100. Default 90."
+            },
+            "savePath": {
+              "type": "string",
+              "description": "Absolute path to also save the image to."
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    ],
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "desktop-mcp",
+        "label": "Desktop MCP"
+      }
+    ],
+    "configuration": {
+      "title": "Desktop MCP",
+      "properties": {
+        "desktopMcp.tools.getScreenSize": {
+          "type": "boolean",
+          "default": true,
+          "description": "Expose the getScreenSize / get_screen_size tool. When disabled the tool is hidden from agents and any call returns a \"disabled by the user\" message."
+        },
+        "desktopMcp.tools.captureScreenshot": {
+          "type": "boolean",
+          "default": true,
+          "description": "Expose the captureScreenshot / capture_screenshot tool. When disabled the tool is hidden from agents and any call returns a \"disabled by the user\" message."
+        },
+        "desktopMcp.httpServer": {
+          "type": "boolean",
+          "default": true,
+          "description": "Start the MCP HTTP server automatically when the extension activates, so MCP clients (Claude Code, Cursor, ...) can connect to http://127.0.0.1:<port>/mcp."
+        },
+        "desktopMcp.httpPort": {
+          "type": "number",
+          "default": 7841,
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "Port for the MCP HTTP server. Changing it restarts the server automatically."
+        },
+        "desktopMcp.registerMcpServer": {
+          "type": "boolean",
+          "default": false,
+          "description": "Also expose the screenshot tools to VS Code as an MCP server, in addition to the built-in language model tools. Useful for agents that only speak MCP."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "desktopMcp.installMcp",
+        "title": "Install MCP",
+        "category": "Desktop MCP"
+      },
+      {
+        "command": "desktopMcp.serverStart",
+        "title": "Server: Start",
+        "category": "Desktop MCP"
+      },
+      {
+        "command": "desktopMcp.serverStop",
+        "title": "Server: Stop",
+        "category": "Desktop MCP"
+      },
+      {
+        "command": "desktopMcp.serverStatus",
+        "title": "Server: Status",
+        "category": "Desktop MCP"
+      },
+      {
+        "command": "desktopMcp.serverSetPort",
+        "title": "Server: Set Port",
+        "category": "Desktop MCP"
+      }
+    ]
+  },
+  "scripts": {
+    "test": "node test/agents.js && node test/smoke.js && node test/http-smoke.js && node test/tool-settings.js && node test/autostart.js && node test/commands.js && node test/install-mcp.js && node test/extension-mock.js",
+    "test:e2e": "node test/vscode-suite/run.js",
+    "package": "vsce package --allow-missing-repository --skip-license"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "node-screenshots": "^0.2.8",
+    "sharp": "^0.35.5",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.106.0",
+    "@vscode/test-electron": "^3.1.0"
+  },
+  "icon": "assets/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/machine202502/desktop-mcp.git"
+  },
+  "homepage": "https://github.com/machine202502/desktop-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/machine202502/desktop-mcp/issues"
+  },
+  "author": "machine202502"
+}
