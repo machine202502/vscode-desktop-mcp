@@ -1,5 +1,7 @@
 # Desktop MCP
 
+<img src="assets/icon.png" width="96" alt="Desktop MCP icon">
+
 Screen size and screenshots for AI agents. Works two ways:
 
 - **VS Code extension** — registers two Language Model Tools, so GitHub Copilot Chat (agent mode) can call them directly.
